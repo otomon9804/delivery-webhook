@@ -1,31 +1,31 @@
 const crypto = require("crypto");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+module.exports = async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).send('Method Not Allowed');
   }
 
   let stripeEvent;
   try {
     stripeEvent = stripe.webhooks.constructEvent(
-      event.body,
-      event.headers["stripe-signature"],
+      JSON.stringify(req.body),
+      req.headers["stripe-signature"],
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
     console.error("署名エラー:", err.message);
-    return { statusCode: 400, body: `Webhook Error: ${err.message}` };
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (stripeEvent.type !== "checkout.session.completed") {
-    return { statusCode: 200, body: "OK" };
+    return res.status(200).send('OK');
   }
 
   const session = stripeEvent.data.object;
   const customerEmail = session.customer_details?.email;
   if (!customerEmail) {
-    return { statusCode: 200, body: "No email" };
+    return res.status(200).send('No email');
   }
 
   const licenseKey = generateLicenseKey(customerEmail);
@@ -53,11 +53,11 @@ exports.handler = async (event) => {
   if (!res.ok) {
     const err = await res.text();
     console.error("Resendエラー:", err);
-    return { statusCode: 500, body: "Mail Error" };
+    return res.status(500).send('Mail Error');
   }
 
   console.log(`✅ 送信完了: ${customerEmail} / ${licenseKey}`);
-  return { statusCode: 200, body: "OK" };
+  return res.status(200).send('OK');
 };
 
 function generateLicenseKey(email) {
