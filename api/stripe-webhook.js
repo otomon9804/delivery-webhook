@@ -1,15 +1,33 @@
 const crypto = require("crypto");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
+// Vercelのbody parsingを無効化（生のbodyが必要）
+module.exports.config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+function getRawBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", (chunk) => { data += chunk; });
+    req.on("end", () => resolve(data));
+    req.on("error", reject);
+  });
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
-    return res.status(405).send('Method Not Allowed');
+    return res.status(405).send("Method Not Allowed");
   }
+
+  const rawBody = await getRawBody(req);
 
   let stripeEvent;
   try {
     stripeEvent = stripe.webhooks.constructEvent(
-      JSON.stringify(req.body),
+      rawBody,
       req.headers["stripe-signature"],
       process.env.STRIPE_WEBHOOK_SECRET
     );
@@ -19,18 +37,18 @@ module.exports = async (req, res) => {
   }
 
   if (stripeEvent.type !== "checkout.session.completed") {
-    return res.status(200).send('OK');
+    return res.status(200).send("OK");
   }
 
   const session = stripeEvent.data.object;
   const customerEmail = session.customer_details?.email;
   if (!customerEmail) {
-    return res.status(200).send('No email');
+    return res.status(200).send("No email");
   }
 
   const licenseKey = generateLicenseKey(customerEmail);
 
-  const res = await fetch("https://api.resend.com/emails", {
+  const mailRes = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
@@ -50,14 +68,14 @@ module.exports = async (req, res) => {
     }),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
+  if (!mailRes.ok) {
+    const err = await mailRes.text();
     console.error("Resendエラー:", err);
-    return res.status(500).send('Mail Error');
+    return res.status(500).send("Mail Error");
   }
 
   console.log(`✅ 送信完了: ${customerEmail} / ${licenseKey}`);
-  return res.status(200).send('OK');
+  return res.status(200).send("OK");
 };
 
 function generateLicenseKey(email) {
