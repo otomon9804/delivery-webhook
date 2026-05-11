@@ -102,7 +102,7 @@ function buildEmailBody(email, key) {
 <p>ご不明な点はお気軽にご連絡ください。</p>
 <p>📧 サポート: <a href="mailto:deliverycalc-info@bens-seints.com">deliverycalc-info@bens-seints.com</a></p>
 <br>
-<p>── BensSeints 野元優大</p>
+<p>── BensSeints</p>
 `;
 }
 
