@@ -64,6 +64,10 @@ module.exports = async (req, res) => {
           filename: "manifest.xml",
           content: Buffer.from(MANIFEST_XML).toString("base64"),
         },
+        {
+          filename: "DeliveryCalc_マニュアル.txt",
+          content: Buffer.from(MANUAL_TXT).toString("base64"),
+        },
       ],
     }),
   });
@@ -105,6 +109,89 @@ function buildEmailBody(email, key) {
 <p>── BensSeints</p>
 `;
 }
+
+const MANUAL_TXT = `【DeliveryCalc】セットアップ・操作マニュアル
+
+■ 1. マスターシートの初期化
+サイドパネルの「マスタシート初期化」ボタンをクリックします。
+以下の6シートが自動で作成されます。
+
+  - TBL_MAKER         ：メーカーマスター
+  - TBL_CUSTOMER      ：顧客マスター
+  - TBL_WAREHOUSE     ：倉庫マスター
+  - TBL_HOLIDAY       ：祝日マスター
+  - TBL_ITEM_IRREGULAR：商品別イレギュラー
+  - TBL_MAKER_IRREGULAR：メーカー別イレギュラー
+
+※ TBL_WAREHOUSEにはサンプルデータ（WH001/WH002）が自動挿入されます。
+※ 受注一覧シート（デフォルト名：受注一覧）は別途ご用意ください。
+
+
+■ 2. 各マスターの入力項目
+
+【TBL_MAKER：メーカーマスター】
+  - Maker code    ：メーカーコード
+  - Maker name    ：メーカー名
+  - 受注締め時間  ：当日受注の締め時間
+  - 納品曜日/日数 ：曜日モード時は納品曜日、日数モード時はリードタイム
+  - 出荷日加算    ：加算する日数
+
+【TBL_CUSTOMER：得意先マスター】
+  - Customer code ：顧客コード
+  - Customer name ：顧客名
+  - 月〜日        ：納品可能な曜日（○×で入力）
+
+【TBL_WAREHOUSE：倉庫マスター】
+  - 倉庫コード    ：倉庫を識別するコード
+  - 区分          ：「入荷」または「納品」
+  - 稼働曜日      ：倉庫が稼働する曜日
+  - 締め時間      ：倉庫の入荷締め時間
+
+【TBL_HOLIDAY：祝日マスター】
+  - 日付          ：祝日の日付
+  - 祝日名        ：祝日の名称
+
+【TBL_ITEM_IRREGULAR：商品別イレギュラー】
+  - Customer code ：顧客コード
+  - Item code     ：商品コード
+  - 納品曜日/リードタイム：通常マスターを上書きする値
+
+【TBL_MAKER_IRREGULAR：メーカー別イレギュラー】
+  - Customer code ：顧客コード
+  - Maker code    ：メーカーコード
+  - 納品曜日/リードタイム：通常マスターを上書きする値
+
+
+■ 3. 演算モードの選択
+「曜日モード」または「日数モード」ボタンで切り替えます。
+
+  - 曜日モード：メーカーごとに受注曜日→納品曜日のマッピングで計算
+  - 日数モード：リードタイム（営業日数）で計算
+
+
+■ 4. 列・シート設定（任意）
+「⚙️ 列・シート設定を開く」ボタンで設定パネルを開きます。
+受注一覧シートのシート名・各列番号を変更できます。
+
+  変更可能な項目：
+  - シート名
+  - 顧客コード列
+  - 品番列
+  - メーカーコード列
+  - 物流形態列
+  - 入庫日列
+  - 納品日列
+  - 倉庫コード列
+
+設定はExcel内に自動保存され、次回起動時に復元されます。
+
+
+■ 5. 納期一括算出
+受注データを受注一覧シートに入力後、
+「納期一括算出」ボタンをクリックします。
+
+納期の優先順位：
+  TBL_ITEM_IRREGULAR → TBL_MAKER_IRREGULAR → 通常マスター`;
 
 const MANIFEST_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="TaskPaneApp">
