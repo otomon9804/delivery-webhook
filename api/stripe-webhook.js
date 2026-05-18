@@ -191,7 +191,12 @@ const MANUAL_TXT = `【DeliveryCalc】セットアップ・操作マニュアル
 「納期一括算出」ボタンをクリックします。
 
 納期の優先順位：
-  TBL_ITEM_IRREGULAR → TBL_MAKER_IRREGULAR → 通常マスター`;
+  TBL_ITEM_IRREGULAR → TBL_MAKER_IRREGULAR → 通常マスター
+
+
+■ 6. 解約方法
+解約をご希望の場合は下記メールアドレスまでご連絡ください。
+deliverycalc-info@bens-seints.com`;
 
 const MANIFEST_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="TaskPaneApp">
